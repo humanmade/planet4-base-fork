@@ -155,6 +155,7 @@ jobs:
               --network "container:test_openresty_1" \
               --shm-size=2g \
               planet4-selenium-tests
+            sleep 15
             docker exec planet4-tests vendor/bin/phpunit -c tests
             docker stop planet4-tests
             popd
