@@ -61,7 +61,6 @@ jobs:
             fi
             touch /tmp/workspace/selenium-container-built
 
-
       - run:
           name: Clone planet4-docker-compose
           command: |
@@ -91,7 +90,7 @@ jobs:
             until [[ $success -ge $threshold ]]
             do
               # Curl to container and expect 'greenpeace' in the response
-              if docker run --network "container:test_openresty_1" --rm appropriate/curl -s -k "http://localhost" | grep -i "greenpeace" > /dev/null
+              if docker run --network "container:test_traefik_1" --rm appropriate/curl -s -k "http://localhost" | grep -i "greenpeace" > /dev/null
               then
                 success=$((success+1))
                 echo "Success: $success/$threshold"
@@ -152,7 +151,7 @@ jobs:
             docker run -d \
               --env-file /tmp/workspace/var/variables.env \
               --name planet4-tests \
-              --network "container:test_openresty_1" \
+              --network "container:test_traefik_1" \
               --shm-size=2g \
               planet4-selenium-tests
             sleep 15
