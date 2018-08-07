@@ -110,10 +110,9 @@ jobs:
 
       - run:
           name: Configure Selenium container
+          working_directory: ~/planet4-docker-selenium-tests
           command: |
-            pushd planet4-docker-selenium-tests
             cat variables.env.example | sed "s/test.planet4.dev/localhost/g" > /tmp/workspace/var/variables.env
-            popd
 
       - run:
           name: Configure WP Options
@@ -145,8 +144,8 @@ jobs:
 
       - run:
           name: Run Selenium Tests
+          working_directory: ~/planet4-docker-selenium-tests
           command: |
-            pushd planet4-docker-selenium-tests
             docker run -d \
               --env-file /tmp/workspace/var/variables.env \
               --name planet4-tests \
@@ -156,7 +155,6 @@ jobs:
             sleep 15
             docker exec planet4-tests vendor/bin/phpunit -c tests
             docker stop planet4-tests
-            popd
 
       - persist_to_workspace:
           root: /tmp/workspace
