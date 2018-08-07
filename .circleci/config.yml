@@ -112,14 +112,14 @@ jobs:
           name: Configure Selenium container
           working_directory: ~/planet4-docker-selenium-tests
           command: |
-            cat variables.env.example | sed "s/test.planet4.dev/localhost/g" > /tmp/workspace/var/variables.env
+            cat variables.env.example | sed "s/test.planet4.dev/www.planet4.test/g" > /tmp/workspace/var/variables.env
 
       - run:
           name: Configure WP Options
           command: |
             source /tmp/workspace/var/variables.env
-            docker exec test_php-fpm_1 wp option set siteurl "http://localhost"
-            docker exec test_php-fpm_1 wp option set home "http://localhost"
+            docker exec test_php-fpm_1 wp option set siteurl "http://www.planet4.test"
+            docker exec test_php-fpm_1 wp option set home "http://www.planet4.test"
             docker exec test_php-fpm_1 wp user create ${PLANET4_USER} noreply@greenpeace.org --role=administrator --user_pass=${PLANET4_USER_PASS}
             docker exec test_redis_1 redis-cli flushdb
 
