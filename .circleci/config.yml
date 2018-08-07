@@ -61,10 +61,7 @@ jobs:
             fi
             touch /tmp/workspace/selenium-container-built
 
-      - run:
-          name: Clone planet4-docker-compose
-          command: |
-            git clone https://github.com/greenpeace/planet4-docker-compose
+      - run: git clone https://github.com/greenpeace/planet4-docker-compose -b feature/testing
 
       - run:
           name: Start docker-compose
