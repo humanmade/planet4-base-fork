@@ -49,11 +49,12 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
 
+      - run: git clone https://github.com/greenpeace/planet4-docker-selenium-tests
+
       - run:
           name: Build Selenium Test Container
           background: true
           command: |
-            git clone https://github.com/greenpeace/planet4-docker-selenium-tests
             if ! docker build -t planet4-selenium-tests planet4-docker-selenium-tests
             then
               TYPE="Selenium Container Build" notify-job-failure.sh
@@ -64,7 +65,7 @@ jobs:
       - run: git clone https://github.com/greenpeace/planet4-docker-compose -b feature/testing
 
       - run:
-          name: Start docker-compose
+          name: Start docker-compose.stateless
           working_directory: ~/planet4-docker-compose
           command: |
             export BUILD_TAG="build-$(cat /tmp/workspace/var/circle-build-num)"
