@@ -49,17 +49,15 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
 
-      - run: git clone https://github.com/greenpeace/planet4-docker-selenium-tests
+      - run: git clone https://github.com/greenpeace/planet4-docker-selenium-tests -b feature/integrated-tests
 
       - run:
           name: Build Selenium Test Container
           background: true
           command: |
-            if ! docker build -t planet4-selenium-tests planet4-docker-selenium-tests
-            then
-              TYPE="Selenium Container Build" notify-job-failure.sh
-              exit 1
-            fi
+            SELENIUM_BRANCH=2497-refactor-tests
+            make src
+            make build
             touch /tmp/workspace/selenium-container-built
 
       - run: git clone https://github.com/greenpeace/planet4-docker-compose -b feature/testing
@@ -106,19 +104,19 @@ jobs:
               [[ $success -ge $threshold ]] || sleep $interval
             done
 
-      - run:
-          name: Configure Selenium container
-          working_directory: ~/planet4-docker-selenium-tests
-          command: |
-            cat variables.env.example | sed "s/test.planet4.dev/www.planet4.test/g" > /tmp/workspace/var/variables.env
+#      - run:
+#          name: Configure Selenium container
+#          working_directory: ~/planet4-docker-selenium-tests
+#          command: |
+#            cat variables.env.example | sed "s/test.planet4.dev/www.planet4.test/g" > /tmp/workspace/var/variables.env
 
       - run:
           name: Configure WP Options
           command: |
-            source /tmp/workspace/var/variables.env
+#            source /tmp/workspace/var/variables.env
             docker exec test_php-fpm_1 wp option set siteurl "http://www.planet4.test"
             docker exec test_php-fpm_1 wp option set home "http://www.planet4.test"
-            docker exec test_php-fpm_1 wp user create ${PLANET4_USER} noreply@greenpeace.org --role=administrator --user_pass=${PLANET4_USER_PASS}
+            docker exec test_php-fpm_1 wp user create dev noreply@greenpeace.org --role=administrator --user_pass=u3vsREsvjwo
             docker exec test_redis_1 redis-cli flushdb
 
       - run:
@@ -144,15 +142,18 @@ jobs:
           name: Run Selenium Tests
           working_directory: ~/planet4-docker-selenium-tests
           command: |
-            docker run -d \
-              --env-file /tmp/workspace/var/variables.env \
-              --name planet4-tests \
-              --network "container:test_traefik_1" \
-              --shm-size=2g \
-              planet4-selenium-tests
+            make run
             sleep 15
-            docker exec planet4-tests vendor/bin/phpunit -c tests
-            docker stop planet4-tests
+            docker exec p4_selenium_1 vendor/bin/phpunit -c tests/phpunit.example.xml
+#            docker run -d \
+#              --env-file /tmp/workspace/var/variables.env \
+#              --name planet4-tests \
+#              --network "container:test_traefik_1" \
+#              --shm-size=2g \
+#              planet4-selenium-tests
+#            sleep 15
+#            docker exec planet4-tests vendor/bin/phpunit -c tests
+#            docker stop planet4-tests
 
       - persist_to_workspace:
           root: /tmp/workspace
